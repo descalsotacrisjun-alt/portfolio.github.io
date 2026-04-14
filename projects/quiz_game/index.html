@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Arcane Quiz</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Metamorphous&display=swap');
+
+        :root {
+            --bg-dark: #05020a;
+            --panel-bg: rgba(20, 5, 45, 0.85);
+            --accent: #d946ef;
+            --accent-glow: rgba(217, 70, 239, 0.6);
+            --secondary: #0ea5e9;
+            --text: #fdf4ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Metamorphous', cursive;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Magical Animated Background */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, transparent 20%, var(--bg-dark) 70%),
+                repeating-conic-gradient(from 0deg, #1e0533 0deg 20deg, var(--bg-dark) 20deg 40deg);
+            animation: spin 60s linear infinite;
+            z-index: -2;
+            opacity: 0.3;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(217, 70, 239, 0.1), transparent 60%);
+            z-index: -1;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Main Console */
+        .game-console {
+            width: 900px;
+            max-width: 95%;
+            background: var(--panel-bg);
+            border: 2px solid #5b21b6;
+            border-radius: 20px;
+            box-shadow: 0 0 50px var(--accent-glow), inset 0 0 30px rgba(91, 33, 182, 0.8);
+            position: relative;
+            padding: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Ornate Corners */
+        .corner {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--accent);
+        }
+
+        .corner-tl {
+            top: -2px;
+            left: -2px;
+            border-right: none;
+            border-bottom: none;
+            border-top-left-radius: 20px;
+        }
+
+        .corner-tr {
+            top: -2px;
+            right: -2px;
+            border-left: none;
+            border-bottom: none;
+            border-top-right-radius: 20px;
+        }
+
+        .corner-bl {
+            bottom: -2px;
+            left: -2px;
+            border-right: none;
+            border-top: none;
+            border-bottom-left-radius: 20px;
+        }
+
+        .corner-br {
+            bottom: -2px;
+            right: -2px;
+            border-left: none;
+            border-top: none;
+            border-bottom-right-radius: 20px;
+        }
+
+        .header-title {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 48px;
+            text-align: center;
+            color: var(--accent);
+            text-shadow: 0 0 20px var(--accent), 0 0 40px var(--secondary);
+            margin-bottom: 20px;
+        }
+
+        .health-bar-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
+
+        .entity-stats {
+            width: 40%;
+        }
+
+        .entity-name {
+            font-size: 20px;
+            margin-bottom: 5px;
+            color: var(--secondary);
+            text-shadow: 0 0 10px var(--secondary);
+        }
+
+        .entity-name.boss {
+            color: #f43f5e;
+            text-shadow: 0 0 10px #f43f5e;
+            text-align: right;
+        }
+
+        .hp-bar-bg {
+            width: 100%;
+            height: 20px;
+            background: #000;
+            border: 2px solid #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .hp-bar-fill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            transition: width 0.5s;
+        }
+
+        .hp-bar-fill.boss-hp {
+            background: linear-gradient(90deg, #be123c, #f43f5e);
+            transform-origin: right;
+        }
+
+        .question-box {
+            font-size: 26px;
+            text-align: center;
+            margin-bottom: 40px;
+            line-height: 1.4;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            min-height: 80px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .option-btn {
+            background: linear-gradient(180deg, #2e1065, #1e1b4b);
+            border: 2px solid #8b5cf6;
+            color: white;
+            font-family: 'Metamorphous', cursive;
+            font-size: 18px;
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .option-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .option-btn:hover {
+            transform: scale(1.05);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .option-btn:hover::before {
+            left: 200%;
+        }
+
+        .message-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            display: none;
+            border-radius: 18px;
+        }
+
+        .message-text {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 60px;
+            color: #10b981;
+            text-shadow: 0 0 30px #10b981;
+            margin-bottom: 20px;
+        }
+
+        .btn-action {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            padding: 15px 40px;
+            font-size: 24px;
+            font-family: 'Metamorphous', cursive;
+            cursor: pointer;
+            text-shadow: 0 0 10px var(--accent);
+            box-shadow: inset 0 0 20px rgba(217, 70, 239, 0.2), 0 0 20px rgba(217, 70, 239, 0.2);
+            transition: all 0.3s;
+        }
+
+        .btn-action:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Damage Animation */
+        @keyframes shake {
+            0% {
+                transform: translate(1px, 1px) rotate(0deg);
+            }
+
+            10% {
+                transform: translate(-1px, -2px) rotate(-1deg);
+            }
+
+            20% {
+                transform: translate(-3px, 0px) rotate(1deg);
+            }
+
+            30% {
+                transform: translate(3px, 2px) rotate(0deg);
+            }
+
+            40% {
+                transform: translate(1px, -1px) rotate(1deg);
+            }
+
+            50% {
+                transform: translate(-1px, 2px) rotate(-1deg);
+            }
+
+            60% {
+                transform: translate(-3px, 1px) rotate(0deg);
+            }
+
+            70% {
+                transform: translate(3px, 1px) rotate(-1deg);
+            }
+
+            80% {
+                transform: translate(-1px, -1px) rotate(1deg);
+            }
+
+            90% {
+                transform: translate(1px, 2px) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(1px, -2px) rotate(-1deg);
+            }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="game-console" id="console">
+        <!-- Ornamental Corners -->
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+
+        <div class="header-title">Trial of Scripts</div>
+
+        <div class="health-bar-container">
+            <div class="entity-stats">
+                <div class="entity-name">Player</div>
+                <div class="hp-bar-bg">
+                    <div class="hp-bar-fill" id="playerHp"></div>
+                </div>
+            </div>
+            <div class="entity-stats">
+                <div class="entity-name boss">Data Dragon</div>
+                <div class="hp-bar-bg">
+                    <div class="hp-bar-fill boss-hp" id="bossHp"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="question-box" id="questionBox">
+            A wild Data Dragon blocks your path. You must answer its riddles to cast offensive spells.
+        </div>
+
+        <div class="options-grid" id="optionsGrid">
+            <!-- Buttons via JS -->
+        </div>
+
+        <div class="message-overlay" id="overlay">
+            <div class="message-text" id="overlayMsg">Victory!</div>
+            <button class="btn-action" onclick="location.reload()">Play Again</button>
+            <a href="../../Portfolio Website.html"
+                style="margin-top:20px; color:var(--text); text-decoration:none;">Back to Portfolio</a>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "Which primitive spell allows you to store a True or False essence?", opts: ["Boolean", "String", "Array", "Integer"], a: 0 },
+            { q: "What ancient syntax converts a JSON sigil string into a Javascript Object?", opts: ["JSON.stringify()", "JSON.parse()", "Object.assign()", "Array.map()"], a: 1 },
+            { q: "To add a new rune to the end of an Array, which incantation is used?", opts: ["push()", "pop()", "shift()", "slice()"], a: 0 },
+            { q: "Which keyword halts the propagation of a loop's curse?", opts: ["stop", "halt", "break", "return"], a: 2 }
+        ];
+
+        let currentQ = 0;
+        let playerHp = 100;
+        let bossHp = 100;
+
+        const pBar = document.getElementById('playerHp');
+        const bBar = document.getElementById('bossHp');
+        const qBox = document.getElementById('questionBox');
+        const oGrid = document.getElementById('optionsGrid');
+        const overlay = document.getElementById('overlay');
+        const overMsg = document.getElementById('overlayMsg');
+        const consoleBox = document.getElementById('console');
+
+        function loadInitial() {
+            oGrid.innerHTML = `<button class="btn-action" style="grid-column: span 2;" onclick="loadQuestion()">Engage Combat</button>`;
+        }
+
+        function loadQuestion() {
+            if (bossHp <= 0 || playerHp <= 0 || currentQ >= questions.length) {
+                endGame(); return;
+            }
+
+            const q = questions[currentQ];
+            qBox.textContent = q.q;
+            oGrid.innerHTML = '';
+
+            q.opts.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                btn.onclick = () => handleAnswer(idx === q.a);
+                oGrid.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(isCorrect) {
+            if (isCorrect) {
+                bossHp -= 25;
+                bBar.style.width = bossHp + '%';
+                consoleBox.classList.add('shake');
+                setTimeout(() => consoleBox.classList.remove('shake'), 500);
+            } else {
+                playerHp -= 34; // 3 wrong answers = death
+                pBar.style.width = playerHp + '%';
+                consoleBox.classList.add('shake');
+                document.body.style.background = '#300';
+                setTimeout(() => { document.body.style.background = 'var(--bg-dark)'; consoleBox.classList.remove('shake'); }, 500);
+            }
+            currentQ++;
+            setTimeout(loadQuestion, 1000);
+        }
+
+        function endGame() {
+            overlay.style.display = 'flex';
+            if (playerHp <= 0) {
+                overMsg.textContent = "Defeated...";
+                overMsg.style.color = "#f43f5e";
+                overMsg.style.textShadow = "0 0 30px #f43f5e";
+            } else if (bossHp <= 0) {
+                overMsg.textContent = "Dragon Slain!";
+            } else {
+                overMsg.textContent = "It Escaped!";
+                overMsg.style.color = "var(--secondary)";
+            }
+        }
+
+        loadInitial();
+    </script>
+</body>
+
+</html>
